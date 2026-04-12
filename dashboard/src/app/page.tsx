@@ -60,6 +60,8 @@ export default function Dashboard() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [slackWebhook, setSlackWebhook] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [previewArtifact, setPreviewArtifact] = useState<any>(null);
+  const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
 
   const scrollTo = (id: string) => {
     setActiveSection(id);
@@ -336,19 +338,39 @@ export default function Dashboard() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {mockArtifacts.map((art, idx) => (
-                <div key={idx} style={{ background: '#080b12', border: '1px solid #0f1520', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: art.bg, color: art.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <art.icon size={16} />
-                    </div>
+                <div key={idx} style={{ background: '#080b12', border: '1px solid #0f1520', borderRadius: 10, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  {/* Thumbnail Area */}
+                  <div 
+                    onClick={() => setPreviewArtifact(art)}
+                    style={{ height: 110, background: art.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                  >
+                    <art.icon size={36} color={art.color} style={{ opacity: 0.8 }} />
+                  </div>
+
+                  {/* Info Area */}
+                  <div style={{ padding: 14, flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0', lineHeight: 1.3 }}>{art.name}</div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{art.type} • {art.date}</div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>{art.type} • {art.date}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
+                      <button 
+                        onClick={() => setPreviewArtifact(art)} 
+                        style={{ ...S.btnSecondary, flex: 1, justifyContent: 'center' }}
+                      >
+                         Preview
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setDownloadingUrl(art.name);
+                          setTimeout(() => setDownloadingUrl(null), 1500);
+                        }} 
+                        style={{ ...S.btnPrimary, flex: 1, justifyContent: 'center' }}
+                      >
+                        {downloadingUrl === art.name ? 'Downloading...' : <><Download size={13} /> Download</>}
+                      </button>
                     </div>
                   </div>
-                  <button style={{ ...S.btnSecondary, justifyContent: 'center', width: '100%', marginTop: 'auto' }}>
-                    <Download size={13} /> Download
-                  </button>
                 </div>
               ))}
             </div>
@@ -483,6 +505,49 @@ export default function Dashboard() {
                   {isSaving ? 'Saving...' : 'Save Settings'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewArtifact && (
+        <div style={S.modalOverlay}>
+          <div style={{ ...S.modalContent, width: 800, maxWidth: '95%', overflow: 'hidden' }}>
+            <div style={S.modalHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <previewArtifact.icon size={18} color={previewArtifact.color} />
+                <h2 style={{ fontSize: 16, fontWeight: 600, color: '#f1f5f9', margin: 0 }}>{previewArtifact.name}</h2>
+              </div>
+              <button 
+                onClick={() => setPreviewArtifact(null)}
+                style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            
+            <div style={{ background: '#05070a', height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+                 <previewArtifact.icon size={48} color={previewArtifact.color} style={{ opacity: 0.3 }} />
+                 <p style={{ color: '#475569', fontSize: 13, fontWeight: 500 }}>Previewing {previewArtifact.type} natively in dashboard.</p>
+                 
+                 {/* Fake Progress Bar to look dynamic */}
+                 <div style={{ width: 200, height: 4, background: '#1e2538', borderRadius: 4, overflow: 'hidden', marginTop: 10 }}>
+                    <div style={{ width: '45%', height: '100%', background: previewArtifact.color, animation: 'pulse 1.5s infinite' }} />
+                 </div>
+            </div>
+            
+            <div style={{ background: '#0d1018', padding: '16px 20px', borderTop: '1px solid #1e2538', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+               <span style={{ fontSize: 12, color: '#64748b' }}>Generated on {previewArtifact.date}</span>
+               <button 
+                  onClick={() => {
+                     setDownloadingUrl('preview');
+                     setTimeout(() => setDownloadingUrl(null), 1500);
+                  }}
+                  style={S.btnPrimary}
+               >
+                 {downloadingUrl === 'preview' ? 'Downloading...' : <><Download size={13} /> Save File</>}
+               </button>
             </div>
           </div>
         </div>
