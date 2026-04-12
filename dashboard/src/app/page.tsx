@@ -56,6 +56,15 @@ export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('all');
+  const [activeSection, setActiveSection] = useState('overview');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [slackWebhook, setSlackWebhook] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const scrollTo = (id: string) => {
+    setActiveSection(id);
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const load = useCallback(() => {
     setLoading(true);
@@ -97,12 +106,10 @@ export default function Dashboard() {
   );
 
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: true },
-    { icon: FlaskConical, label: 'Test Runs', active: false },
-    { icon: TrendingUp, label: 'Trends', active: false },
-    { icon: GitCompare, label: 'Compare', active: false },
-    { icon: FileText, label: 'Reports', active: false },
-    { icon: Video, label: 'Replays', active: false },
+    { icon: LayoutDashboard, label: 'Dashboard', id: 'overview' },
+    { icon: GitCompare, label: 'Compare', id: 'compare' },
+    { icon: TrendingUp, label: 'Trends', id: 'trends' },
+    { icon: FlaskConical, label: 'Test Runs', id: 'history' },
   ];
 
   const metricCards = [
@@ -150,14 +157,16 @@ export default function Dashboard() {
         <nav style={S.nav}>
           <p style={S.navSection}>OVERVIEW</p>
           {navItems.map(item => (
-            <button key={item.label} style={item.active ? S.navItemActive : S.navItem}>
+            <button key={item.label} onClick={() => scrollTo(item.id)} style={activeSection === item.id ? S.navItemActive : S.navItem}>
               <item.icon size={15} />
               <span>{item.label}</span>
-              {item.active && <ChevronRight size={12} style={{ marginLeft: 'auto', opacity: 0.5 }} />}
+              {activeSection === item.id && <ChevronRight size={12} style={{ marginLeft: 'auto', opacity: 0.5 }} />}
             </button>
           ))}
           <p style={{ ...S.navSection, marginTop: 20 }}>SETTINGS</p>
-          <button style={S.navItem}><Settings size={15} /><span>Settings</span></button>
+          <button style={S.navItem} onClick={() => setIsSettingsOpen(true)}>
+            <Settings size={15} /><span>Settings</span>
+          </button>
           <a href="https://testsprite.com" target="_blank" rel="noreferrer" style={{ ...S.navItem, textDecoration: 'none' }}>
             <ExternalLink size={15} /><span>TestSprite</span>
           </a>
@@ -210,7 +219,7 @@ export default function Dashboard() {
           )}
 
           {/* Metric Cards */}
-          <div style={S.grid5}>
+          <div id="overview" style={S.grid5}>
             {metricCards.map(card => (
               <div key={card.label} style={S.metricCard}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -232,7 +241,7 @@ export default function Dashboard() {
 
           {/* Round Comparison */}
           {r1 && r2 && (
-            <div style={S.card}>
+            <div id="compare" style={S.card}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <GitCompare size={15} color="#a855f7" />
@@ -281,7 +290,7 @@ export default function Dashboard() {
 
           {/* Trend Chart */}
           {trendData.length > 1 && (
-            <div style={S.card}>
+            <div id="trends" style={S.card}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <TrendingUp size={15} color="#6366f1" />
                 <span style={S.cardTitle}>Pass Rate & Coverage Trends</span>
@@ -313,7 +322,7 @@ export default function Dashboard() {
           )}
 
           {/* Run History */}
-          <div style={S.card}>
+          <div id="history" style={S.card}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BarChart3 size={15} color="#64748b" />
@@ -395,6 +404,56 @@ export default function Dashboard() {
           </div>
         </main>
       </div>
+
+      {/* Settings Modal */}
+      {isSettingsOpen && (
+        <div style={S.modalOverlay}>
+          <div style={S.modalContent}>
+            <div style={S.modalHeader}>
+              <h2 style={{ fontSize: 18, fontWeight: 600, color: '#f1f5f9', margin: 0 }}>Dashboard Settings</h2>
+              <button 
+                onClick={() => setIsSettingsOpen(false)}
+                style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            
+            <div style={S.modalBody}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#e2e8f0', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Zap size={14} color="#6366f1" /> Slack Integration
+              </h3>
+              <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 16 }}>
+                Configure a Slack Webhook URL to receive real-time alerts when SLOs are breached or critical functional tests fail during a test run.
+              </p>
+              
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#cbd5e1', marginBottom: 8 }}>Slack Webhook URL</label>
+                <input 
+                  type="text" 
+                  value={slackWebhook}
+                  onChange={(e) => setSlackWebhook(e.target.value)}
+                  placeholder="https://hooks.slack.com/services/..."
+                  style={S.input}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
+                <button onClick={() => setIsSettingsOpen(false)} style={S.btnSecondary}>Cancel</button>
+                <button 
+                  onClick={() => {
+                    setIsSaving(true);
+                    setTimeout(() => { setIsSaving(false); setIsSettingsOpen(false); }, 600);
+                  }}
+                  style={S.btnPrimary}
+                >
+                  {isSaving ? 'Saving...' : 'Save Settings'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -582,5 +641,27 @@ const S: Record<string, React.CSSProperties> = {
     width: 36, height: 36, borderRadius: '50%',
     border: '2px solid rgba(99,102,241,0.2)', borderTopColor: '#6366f1',
     animation: 'spin 0.8s linear infinite',
+  },
+  // Modal
+  modalOverlay: {
+    position: 'fixed' as const, top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(5, 7, 10, 0.8)', backdropFilter: 'blur(4px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+  },
+  modalContent: {
+    background: '#0d1018', border: '1px solid #1e2538', borderRadius: 16,
+    width: 480, maxWidth: '90%', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+  },
+  modalHeader: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '16px 20px', borderBottom: '1px solid #1e2538',
+  },
+  modalBody: {
+    padding: 24,
+  },
+  input: {
+    width: '100%', padding: '10px 14px', borderRadius: 8,
+    background: '#080b12', border: '1px solid #1e2538', color: '#e2e8f0',
+    fontSize: 13, outline: 'none', transition: 'border-color .2s',
   },
 };
