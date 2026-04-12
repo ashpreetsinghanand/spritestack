@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.next/
+dist/
+
+# SpriteStack local state
+.spritestack/
+
+# Keep testsprite_tests/ tracked (required for hackathon submission)
+# testsprite_tests/  <-- DO NOT add this
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# System
+.DS_Store
+*.log
+npm-debug.log*
+
+# Runtime
+*.sqlite

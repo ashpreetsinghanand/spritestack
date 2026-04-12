@@ -1,0 +1,48 @@
+# SpriteStack Configuration
+# This file defines your complete TestOps ecosystem powered by TestSprite MCP
+
+name: My Project
+projectType: auto          # nextjs | react | express | fastapi | ai-agent | api-heavy | e-commerce | auto
+baseUrl: http://localhost:3000
+outputDir: testsprite_tests
+
+tests:
+  # ── Functional / E2E Tests ──────────────────────────────────────────────
+  functional:
+    journeys:
+      - login              # Tests the full login/auth flow
+      - checkout           # Tests the checkout user journey
+      - main-flow          # Tests the core product journey
+    timeout: 30000         # ms per test
+
+  # ── Load & Performance Tests ─────────────────────────────────────────────
+  load:
+    profiles:
+      - normal-traffic     # Baseline load (users)
+      - peak-traffic       # 2x normal, simulates traffic spikes
+    users: 50              # Concurrent virtual users
+    duration: 2m           # Test duration
+    rampUp: 30s            # Ramp-up period before full load
+    slo:
+      p95: 300ms           # 95th percentile latency must be under 300ms
+      p99: 800ms           # 99th percentile latency
+      error_rate: 1%       # Max acceptable error rate
+
+  # ── Bulk Prompt Tests (for AI / LLM apps) ────────────────────────────────
+  bulkPrompt:
+    enabled: false         # Set to true for AI/LLM projects
+    count: 500             # Number of concurrent LLM prompt requests
+    endpoint: /api/chat    # Your LLM endpoint
+    maxLatency: 5000ms     # Max acceptable latency per prompt
+    maxCost: 0.50          # Max acceptable cost per 1K requests (USD)
+
+# ── Alerts ──────────────────────────────────────────────────────────────────
+alerts:
+  slack: false             # Set to your Slack webhook URL to enable
+  discord: false           # Set to your Discord webhook URL to enable
+  email: false             # Set to email for notifications on failures
+
+# ── Continuous Monitoring ───────────────────────────────────────────────────
+continuous:
+  enabled: false
+  schedule: "0 */6 * * *" # Run every 6 hours (cron syntax)

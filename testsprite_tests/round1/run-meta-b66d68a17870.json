@@ -1,0 +1,54 @@
+{
+  "runId": "b66d68a17870",
+  "projectName": "My Project",
+  "round": 1,
+  "testType": "all",
+  "status": "failed",
+  "totalTests": 34,
+  "passedTests": 19,
+  "failedTests": 15,
+  "coveragePercent": 63.83104800013232,
+  "durationMs": 89300.12048292783,
+  "summaryJson": "{\"totalTests\":34,\"passedTests\":19,\"failedTests\":15,\"coveragePercent\":63.83104800013232,\"durationMs\":89300.12048292783,\"issues\":[{\"severity\":\"critical\",\"title\":\"Authentication flow missing CSRF protection\",\"description\":\"The login endpoint does not validate CSRF tokens, making it vulnerable to cross-site request forgery attacks.\",\"fixSuggestion\":\"Add `csrf-tokens` middleware or include X-CSRF-Token header validation in your auth handler.\"},{\"severity\":\"high\",\"title\":\"Memory leak in WebSocket connection handler\",\"description\":\"Event listeners are not removed when connections close, causing gradual memory growth under load.\",\"fixSuggestion\":\"Call `socket.removeAllListeners()` in the `close` event handler or use `{ once: true }` for one-time handlers.\"},{\"severity\":\"high\",\"title\":\"Database connection pool exhausted under 50+ concurrent users\",\"description\":\"Load tests reveal connection pool (size=10) becomes bottleneck. P95 latency spikes to 2.3s at 50 VUs.\",\"fixSuggestion\":\"Increase pool size to 25-50 or implement connection queuing. Consider using PgBouncer for connection pooling.\"},{\"severity\":\"medium\",\"title\":\"API response missing pagination metadata\",\"description\":\"List endpoints do not include `total`, `page`, or `hasNext` fields, breaking client-side pagination.\",\"fixSuggestion\":\"Return `{ data: [...], meta: { total, page, perPage, hasNext } }` from all list endpoints.\"},{\"severity\":\"medium\",\"title\":\"Form validation runs only client-side\",\"description\":\"Email and phone number validation is only enforced in the UI, server accepts malformed data.\",\"fixSuggestion\":\"Add Zod/Joi validation schema to API route POST handlers to mirror client-side constraints.\"},{\"severity\":\"low\",\"title\":\"Missing rate limiting on public endpoints\",\"description\":\"The /api/search endpoint has no rate limiting, allowing potential abuse.\",\"fixSuggestion\":\"Add express-rate-limit or similar middleware with a reasonable 100 req/min per IP limit.\"}]}",
+  "createdAt": "2026-04-12T13:07:41.940Z",
+  "issues": [
+    {
+      "severity": "critical",
+      "title": "Authentication flow missing CSRF protection",
+      "description": "The login endpoint does not validate CSRF tokens, making it vulnerable to cross-site request forgery attacks.",
+      "fixSuggestion": "Add `csrf-tokens` middleware or include X-CSRF-Token header validation in your auth handler."
+    },
+    {
+      "severity": "high",
+      "title": "Memory leak in WebSocket connection handler",
+      "description": "Event listeners are not removed when connections close, causing gradual memory growth under load.",
+      "fixSuggestion": "Call `socket.removeAllListeners()` in the `close` event handler or use `{ once: true }` for one-time handlers."
+    },
+    {
+      "severity": "high",
+      "title": "Database connection pool exhausted under 50+ concurrent users",
+      "description": "Load tests reveal connection pool (size=10) becomes bottleneck. P95 latency spikes to 2.3s at 50 VUs.",
+      "fixSuggestion": "Increase pool size to 25-50 or implement connection queuing. Consider using PgBouncer for connection pooling."
+    },
+    {
+      "severity": "medium",
+      "title": "API response missing pagination metadata",
+      "description": "List endpoints do not include `total`, `page`, or `hasNext` fields, breaking client-side pagination.",
+      "fixSuggestion": "Return `{ data: [...], meta: { total, page, perPage, hasNext } }` from all list endpoints."
+    },
+    {
+      "severity": "medium",
+      "title": "Form validation runs only client-side",
+      "description": "Email and phone number validation is only enforced in the UI, server accepts malformed data.",
+      "fixSuggestion": "Add Zod/Joi validation schema to API route POST handlers to mirror client-side constraints."
+    },
+    {
+      "severity": "low",
+      "title": "Missing rate limiting on public endpoints",
+      "description": "The /api/search endpoint has no rate limiting, allowing potential abuse.",
+      "fixSuggestion": "Add express-rate-limit or similar middleware with a reasonable 100 req/min per IP limit."
+    }
+  ],
+  "mcpProvider": "TestSprite",
+  "generatedBy": "SpriteStack CLI v0.1.0"
+}

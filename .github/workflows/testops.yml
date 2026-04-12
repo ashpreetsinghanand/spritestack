@@ -1,0 +1,50 @@
+name: SpriteStack TestOps CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      round:
+        description: 'Test round (1 or 2)'
+        required: false
+        default: '1'
+
+jobs:
+  testops:
+    name: TestSprite MCP Full Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build CLI
+        run: npm run build --workspace=packages/cli
+
+      - name: Run SpriteStack TestOps (Round 1)
+        uses: ./.github/actions/spritestack-guard
+        with:
+          spritestack-api-key: ${{ secrets.TESTSPRITE_API_KEY }}
+          testsprite-email: ${{ secrets.TESTSPRITE_EMAIL }}
+          round: ${{ github.event.inputs.round || '1' }}
+          test-type: all
+          fail-on-error: ${{ github.event_name == 'push' }}
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spritestack-results-${{ github.run_number }}
+          path: testsprite_tests/
+          retention-days: 30

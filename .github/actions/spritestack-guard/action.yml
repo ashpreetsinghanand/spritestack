@@ -1,0 +1,179 @@
+name: SpriteStack TestOps Guard
+description: Run full TestSprite MCP test suite (functional + load + bulk-prompt) and post results as a rich PR comment
+
+inputs:
+  spritestack-api-key:
+    description: TestSprite API key
+    required: true
+  testsprite-email:
+    description: TestSprite account email
+    required: false
+  round:
+    description: Test round number (1, 2, ...)
+    required: false
+    default: '1'
+  test-type:
+    description: Type of tests to run (functional | load | bulk-prompt | all)
+    required: false
+    default: 'all'
+  base-url:
+    description: Base URL of the deployed app to test
+    required: false
+    default: ''
+  fail-on-error:
+    description: Fail the workflow if tests fail
+    required: false
+    default: 'true'
+  node-version:
+    description: Node.js version to use
+    required: false
+    default: '20'
+
+outputs:
+  pass-rate:
+    description: Test pass rate percentage
+    value: ${{ steps.run-tests.outputs.pass-rate }}
+  total-tests:
+    description: Total number of tests run
+    value: ${{ steps.run-tests.outputs.total-tests }}
+  report-url:
+    description: URL to the HTML test report
+    value: ${{ steps.run-tests.outputs.report-url }}
+  status:
+    description: Overall test status (passed | failed)
+    value: ${{ steps.run-tests.outputs.status }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install SpriteStack CLI
+      shell: bash
+      run: npm install -g @spritestack/cli@latest || npx @spritestack/cli@latest --version
+
+    - name: Initialize SpriteStack (if not configured)
+      shell: bash
+      run: |
+        if [ ! -f "spritestack.yml" ]; then
+          spritestack init --yes
+        fi
+
+    - name: Run TestSprite MCP Tests
+      id: run-tests
+      shell: bash
+      env:
+        TESTSPRITE_API_KEY: ${{ inputs.spritestack-api-key }}
+        TESTSPRITE_EMAIL: ${{ inputs.testsprite-email }}
+        SPRITESTACK_BASE_URL: ${{ inputs.base-url }}
+      run: |
+        set +e
+        spritestack run ${{ inputs.test-type }} \
+          --round ${{ inputs.round }} \
+          --compare \
+          --ci \
+          --output-json /tmp/spritestack-result.json 2>&1 | tee /tmp/spritestack-output.log
+
+        EXIT_CODE=$?
+
+        # Parse results from output JSON
+        if [ -f "/tmp/spritestack-result.json" ]; then
+          PASS_RATE=$(cat /tmp/spritestack-result.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('passRate', '0'))" 2>/dev/null || echo "0")
+          TOTAL=$(cat /tmp/spritestack-result.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('totalTests', '0'))" 2>/dev/null || echo "0")
+          STATUS=$(cat /tmp/spritestack-result.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status', 'unknown'))" 2>/dev/null || echo "unknown")
+        else
+          PASS_RATE="0"
+          TOTAL="0"
+          STATUS="error"
+        fi
+
+        echo "pass-rate=$PASS_RATE" >> $GITHUB_OUTPUT
+        echo "total-tests=$TOTAL" >> $GITHUB_OUTPUT
+        echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+        if [ "${{ inputs.fail-on-error }}" = "true" ] && [ $EXIT_CODE -ne 0 ]; then
+          exit $EXIT_CODE
+        fi
+
+    - name: Post PR Comment
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const passRate = '${{ steps.run-tests.outputs.pass-rate }}';
+          const totalTests = '${{ steps.run-tests.outputs.total-tests }}';
+          const status = '${{ steps.run-tests.outputs.status }}';
+          const round = '${{ inputs.round }}';
+          const testType = '${{ inputs.test-type }}';
+
+          const statusEmoji = status === 'passed' ? '✅' : '❌';
+          const statusBadge = status === 'passed'
+            ? '![Status](https://img.shields.io/badge/TestOps-PASSED-22c55e?style=flat-square&logo=checkmarx)'
+            : '![Status](https://img.shields.io/badge/TestOps-FAILED-ef4444?style=flat-square&logo=checkmarx)';
+
+          let output = '';
+          try {
+            output = fs.readFileSync('/tmp/spritestack-output.log', 'utf8').slice(-3000);
+          } catch {}
+
+          const body = `## ${statusEmoji} SpriteStack TestOps Guard — Round ${round}
+          
+          ${statusBadge}
+          
+          | Metric | Value |
+          |--------|-------|
+          | **Status** | ${status === 'passed' ? '✅ PASSED' : '❌ FAILED'} |
+          | **Test Type** | \`${testType}\` |
+          | **Round** | ${round} |
+          | **Total Tests** | ${totalTests} |
+          | **Pass Rate** | ${passRate}% |
+          
+          <details>
+          <summary>📋 Full Test Output</summary>
+          
+          \`\`\`
+          ${output}
+          \`\`\`
+          
+          </details>
+          
+          > Powered by [SpriteStack](https://github.com/ashpreetsinghanand/spritestack) + [TestSprite MCP](https://testsprite.com)
+          `;
+
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(c => c.body.includes('SpriteStack TestOps Guard'));
+
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+          }
+
+    - name: Upload Test Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: spritestack-testops-round${{ inputs.round }}
+        path: |
+          testsprite_tests/
+          .spritestack/
+        retention-days: 30

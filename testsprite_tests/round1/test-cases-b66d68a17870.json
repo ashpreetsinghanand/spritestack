@@ -1,0 +1,106 @@
+{
+  "runId": "1775999261945",
+  "generatedAt": "2026-04-12T13:07:41.945Z",
+  "generatedBy": "SpriteStack + TestSprite MCP",
+  "projectName": "My Project",
+  "testType": "all",
+  "totalCases": 8,
+  "cases": [
+    {
+      "id": "tc_1",
+      "name": "[Functional] login happy path",
+      "type": "functional",
+      "status": "passed",
+      "assertions": [
+        "Page title contains 'My Project'",
+        "No console errors",
+        "Response time < 2000ms"
+      ],
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_2",
+      "name": "[Functional] login error state",
+      "type": "functional",
+      "status": "passed",
+      "assertions": [
+        "Error message displayed",
+        "Form state reset on error",
+        "Accessible error text"
+      ],
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_3",
+      "name": "[Functional] checkout happy path",
+      "type": "functional",
+      "status": "passed",
+      "assertions": [
+        "Page title contains 'My Project'",
+        "No console errors",
+        "Response time < 2000ms"
+      ],
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_4",
+      "name": "[Functional] checkout error state",
+      "type": "functional",
+      "status": "passed",
+      "assertions": [
+        "Error message displayed",
+        "Form state reset on error",
+        "Accessible error text"
+      ],
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_5",
+      "name": "[Functional] main-flow happy path",
+      "type": "functional",
+      "status": "passed",
+      "assertions": [
+        "Page title contains 'My Project'",
+        "No console errors",
+        "Response time < 2000ms"
+      ],
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_6",
+      "name": "[Functional] main-flow error state",
+      "type": "functional",
+      "status": "passed",
+      "assertions": [
+        "Error message displayed",
+        "Form state reset on error",
+        "Accessible error text"
+      ],
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_7",
+      "name": "[Load] 50 concurrent users — normal traffic",
+      "type": "load",
+      "status": "passed",
+      "assertions": [
+        "P95 latency < 300ms",
+        "Error rate < 1%",
+        "No OOM events"
+      ],
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_8",
+      "name": "[Load] 100 concurrent users — peak traffic",
+      "type": "load",
+      "status": "failed",
+      "assertions": [
+        "P95 latency < 600ms",
+        "Error rate < 2%",
+        "Graceful degradation"
+      ],
+      "generatedBy": "TestSprite MCP"
+    }
+  ]
+}

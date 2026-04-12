@@ -1,0 +1,39 @@
+{
+  "name": "@spritestack/cli",
+  "version": "0.1.0",
+  "description": "One-command TestOps orchestration for TestSprite MCP",
+  "bin": {
+    "spritestack": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "chalk": "4.1.2",
+    "commander": "^11.1.0",
+    "fs-extra": "^11.2.0",
+    "js-yaml": "^4.1.0",
+    "ora": "5.4.1",
+    "boxen": "5.1.2",
+    "inquirer": "8.2.6",
+    "better-sqlite3": "^9.4.3",
+    "axios": "^1.6.7",
+    "open": "8.4.2",
+    "table": "^6.8.1",
+    "date-fns": "^3.3.1",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^8.2.10",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.11.17",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
