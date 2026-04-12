@@ -1,6 +1,6 @@
 {
   "name": "spritestack",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The complete TestOps ecosystem for TestSprite MCP — one command for functional, load, and bulk-prompt testing",
   "bin": {
     "spritestack": "dist/index.js"
