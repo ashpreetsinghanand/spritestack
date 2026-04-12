@@ -1,16 +1,50 @@
 {
-  "name": "@spritestack/cli",
+  "name": "spritestack",
   "version": "0.1.0",
-  "description": "One-command TestOps orchestration for TestSprite MCP",
+  "description": "The complete TestOps ecosystem for TestSprite MCP — one command for functional, load, and bulk-prompt testing",
   "bin": {
-    "spritestack": "./dist/index.js"
+    "spritestack": "dist/index.js"
   },
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "type": "commonjs",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build",
+    "test": "node dist/index.js --version"
+  },
+  "keywords": [
+    "testsprite",
+    "testing",
+    "testops",
+    "mcp",
+    "e2e",
+    "load-testing",
+    "ai-testing",
+    "functional-testing",
+    "ci-cd",
+    "coverage",
+    "automation"
+  ],
+  "author": "Ashpreet Singh Anand",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashpreetsinghanand/spritestack.git"
+  },
+  "homepage": "https://github.com/ashpreetsinghanand/spritestack#readme",
+  "bugs": {
+    "url": "https://github.com/ashpreetsinghanand/spritestack/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "chalk": "4.1.2",
@@ -21,7 +55,6 @@
     "boxen": "5.1.2",
     "inquirer": "8.2.6",
     "better-sqlite3": "^9.4.3",
-    "axios": "^1.6.7",
     "open": "8.4.2",
     "table": "^6.8.1",
     "date-fns": "^3.3.1",

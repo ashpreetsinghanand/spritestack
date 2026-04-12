@@ -2,18 +2,17 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'SpriteStack Dashboard — TestOps Ecosystem',
-  description: 'The complete TestOps dashboard for TestSprite MCP. View test history, trends, Round 1 vs Round 2 comparisons, and live coverage metrics.',
-  keywords: ['TestSprite', 'TestOps', 'testing', 'MCP', 'SpriteStack'],
+  title: 'SpriteStack — TestOps Dashboard',
+  description: 'The complete TestOps ecosystem for TestSprite MCP. One command for functional, load, and bulk-prompt testing.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className={inter.variable}>
+      <body>{children}</body>
     </html>
   );
 }

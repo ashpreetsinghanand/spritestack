@@ -1,12 +1,13 @@
 import { Command } from 'commander';
 import * as path from 'path';
 import * as fs from 'fs-extra';
+import * as yaml from 'js-yaml';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { banner, success, info, warn, error as displayError, sectionHeader, formatDuration } from './display';
 import { loadConfig, writeConfig, getDefaultConfig, SpritestackConfig } from './config';
 import { runTests } from './runner';
-import { getRecentRuns, getAllRuns, getRunById } from './db';
+import { getRecentRuns } from './db';
 import { table } from 'table';
 
 const program = new Command();
@@ -131,6 +132,7 @@ program
   .option('--compare', 'Compare with previous round')
   .option('--demo', 'Demo mode with simulated results')
   .option('--ci', 'CI mode: exit code 1 on failures')
+  .option('--output-json <path>', 'Write JSON result summary to a file (for CI)')
   .action(async (testType = 'all', opts) => {
     banner();
     const cwd = process.cwd();
@@ -157,6 +159,27 @@ program
     }
 
     const result = await runTests(config, type, { round, cwd, demoMode: opts.demo }, previousRun);
+
+    // Write JSON summary for CI integrations
+    if (opts.outputJson) {
+      const jsonSummary = {
+        runId: result.run.runId,
+        status: result.run.status,
+        totalTests: result.run.totalTests,
+        passedTests: result.run.passedTests,
+        failedTests: result.run.failedTests,
+        passRate: result.run.totalTests > 0
+          ? ((result.run.passedTests / result.run.totalTests) * 100).toFixed(1)
+          : '0.0',
+        coveragePercent: result.run.coveragePercent.toFixed(1),
+        durationMs: result.run.durationMs,
+        round: result.run.round,
+        issueCount: result.issues.length,
+        reportPath: result.reportPath,
+      };
+      fs.writeJsonSync(opts.outputJson, jsonSummary, { spaces: 2 });
+      info(`JSON summary written to: ${chalk.cyan(opts.outputJson)}`);
+    }
 
     if (opts.ci && result.run.status === 'failed') {
       displayError('Tests FAILED — exiting with code 1 (CI mode)');
@@ -252,11 +275,11 @@ program
     const prevRate = run1.totalTests > 0 ? (run1.passedTests / run1.totalTests) * 100 : 0;
     const currRate = run2.totalTests > 0 ? (run2.passedTests / run2.totalTests) * 100 : 0;
     const delta = currRate - prevRate;
-    const coverage_delta = run2.coveragePercent - run1.coveragePercent;
+    const coverageDelta = run2.coveragePercent - run1.coveragePercent;
 
     console.log();
     console.log(`  ${chalk.bold('Pass rate')}:  ${chalk.dim(prevRate.toFixed(1) + '%')} → ${chalk.bold(currRate.toFixed(1) + '%')}  ${delta >= 0 ? chalk.green('+' + delta.toFixed(1) + '%') : chalk.red(delta.toFixed(1) + '%')} ${delta >= 0 ? '🟢' : '🔴'}`);
-    console.log(`  ${chalk.bold('Coverage')}:   ${chalk.dim(run1.coveragePercent.toFixed(1) + '%')} → ${chalk.bold(run2.coveragePercent.toFixed(1) + '%')}  ${coverage_delta >= 0 ? chalk.green('+' + coverage_delta.toFixed(1) + '%') : chalk.red(coverage_delta.toFixed(1) + '%')}`);
+    console.log(`  ${chalk.bold('Coverage')}:   ${chalk.dim(run1.coveragePercent.toFixed(1) + '%')} → ${chalk.bold(run2.coveragePercent.toFixed(1) + '%')}  ${coverageDelta >= 0 ? chalk.green('+' + coverageDelta.toFixed(1) + '%') : chalk.red(coverageDelta.toFixed(1) + '%')}`);
     console.log(`  ${chalk.bold('Passed')}:     ${chalk.dim(run1.passedTests)} → ${chalk.green.bold(run2.passedTests)}`);
     console.log(`  ${chalk.bold('Failed')}:     ${chalk.dim(run1.failedTests)} → ${run2.failedTests <= run1.failedTests ? chalk.green.bold(run2.failedTests) : chalk.red.bold(run2.failedTests)}`);
     console.log();
@@ -285,21 +308,32 @@ program
     info('Starting SpriteStack dashboard...');
     const { default: open } = await import('open');
 
-    // Check if dashboard package exists
+    // Check if dashboard directory exists (monorepo usage)
     const dashboardDir = path.join(__dirname, '../../..', 'dashboard');
     if (fs.existsSync(dashboardDir)) {
       const { spawn } = await import('child_process');
-      const child = spawn('npm', ['run', 'dev', '--', '--port', port.toString()], {
-        cwd: dashboardDir,
-        stdio: 'inherit',
-        env: { ...process.env, SPRITESTACK_CWD: cwd, PORT: port.toString() },
-      });
-      await sleep(2500);
+      const node = process.execPath;
+      const npmBin = path.join(path.dirname(node), 'npm');
+      const child = spawn(
+        fs.existsSync(npmBin) ? npmBin : 'npm',
+        ['run', 'dev', '--', '--port', port.toString()],
+        {
+          cwd: dashboardDir,
+          stdio: 'inherit',
+          env: { ...process.env, SPRITESTACK_CWD: cwd, PORT: port.toString() },
+        }
+      );
+      await sleep(3000);
       await open(`http://localhost:${port}`);
       success(`Dashboard running at ${chalk.cyan(`http://localhost:${port}`)}`);
-      await new Promise((_, reject) => child.on('error', reject));
+      await new Promise<void>((resolve, reject) => {
+        child.on('close', resolve);
+        child.on('error', reject);
+      });
     } else {
-      displayError('Dashboard not found. Make sure you cloned the full SpriteStack repo.');
+      // Standalone install: serve from bundled dashboard if present
+      info(`Visit ${chalk.cyan('https://github.com/ashpreetsinghanand/spritestack')} to set up the full dashboard.`);
+      displayError('Dashboard directory not found. Clone the full repo and run from the project root.');
     }
   });
 
@@ -319,7 +353,6 @@ program
     }
 
     sectionHeader('Current Configuration');
-    const { default: yaml } = require('js-yaml');
     console.log(chalk.dim(yaml.dump(config, { indent: 2 })));
   });
 
