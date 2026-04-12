@@ -10,7 +10,7 @@ import {
   FlaskConical, LayoutDashboard, TrendingUp, GitCompare,
   FileText, Video, Settings, ExternalLink, RefreshCw, Play,
   CheckCircle2, XCircle, AlertTriangle, Zap, Activity, Clock,
-  BarChart3, Shield, ChevronRight, Wifi, ArrowUpRight,
+  BarChart3, Shield, ChevronRight, Wifi, ArrowUpRight, Download, File,
 } from 'lucide-react';
 
 interface TestRun {
@@ -109,7 +109,14 @@ export default function Dashboard() {
     { icon: LayoutDashboard, label: 'Dashboard', id: 'overview' },
     { icon: GitCompare, label: 'Compare', id: 'compare' },
     { icon: TrendingUp, label: 'Trends', id: 'trends' },
+    { icon: FileText, label: 'Reports', id: 'artifacts' },
     { icon: FlaskConical, label: 'Test Runs', id: 'history' },
+  ];
+
+  const mockArtifacts = [
+    { name: 'Round 2 Functional Replay', type: 'video/mp4', icon: Video, color: '#f59e0b', bg: 'rgba(245,158,11,0.15)', date: 'Today, 14:32' },
+    { name: 'Round 1 Final HTML Report', type: 'text/html', icon: FileText, color: '#3b82f6', bg: 'rgba(59,130,246,0.15)', date: 'Today, 14:15' },
+    { name: 'TestOps Exec Summary', type: 'application/pdf', icon: File, color: '#ef4444', bg: 'rgba(239,68,68,0.15)', date: 'Yesterday, 09:00' },
   ];
 
   const metricCards = [
@@ -320,6 +327,32 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+
+          {/* Artifacts & Reports */}
+          <div id="artifacts" style={S.card}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <FileText size={15} color="#ec4899" />
+              <span style={S.cardTitle}>Reports, Videos & Artifacts</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              {mockArtifacts.map((art, idx) => (
+                <div key={idx} style={{ background: '#080b12', border: '1px solid #0f1520', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 8, background: art.bg, color: art.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <art.icon size={16} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0', lineHeight: 1.3 }}>{art.name}</div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{art.type} • {art.date}</div>
+                    </div>
+                  </div>
+                  <button style={{ ...S.btnSecondary, justifyContent: 'center', width: '100%', marginTop: 'auto' }}>
+                    <Download size={13} /> Download
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Run History */}
           <div id="history" style={S.card}>
