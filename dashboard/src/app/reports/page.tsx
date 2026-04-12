@@ -1,16 +1,55 @@
 "use client";
 
-import { useState } from 'react';
-import { FileText, Video, File, XCircle, Download } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { FileText, FileJson, XCircle, Download } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 
 export default function ReportsPage() {
+  const [artifacts, setArtifacts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [previewArtifact, setPreviewArtifact] = useState<any>(null);
 
-  const mockArtifacts = [
-    { name: 'Round 2 Functional Replay', type: 'video/mp4', icon: Video, color: 'text-amber-500', bg: 'bg-amber-500/15', downloadUrl: '/samples/functional-replay.mp4', date: 'Today, 14:32' },
-    { name: 'Round 1 Final HTML Report', type: 'text/html', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-500/15', downloadUrl: '/samples/final-report.html', date: 'Today, 14:15' },
-    { name: 'TestOps Exec Summary', type: 'application/pdf', icon: File, color: 'text-rose-500', bg: 'bg-rose-500/15', downloadUrl: '/samples/exec-summary.pdf', date: 'Yesterday, 09:00' },
-  ];
+  const load = useCallback(() => {
+    setLoading(true);
+    fetch('/api/runs')
+      .then(r => r.json())
+      .then(d => {
+        const runs = d.runs || [];
+        const arts: any[] = [];
+        
+        runs.forEach((r: any) => {
+          const dateStr = format(parseISO(r.created_at), 'MMM d, HH:mm');
+          
+          // HTML Report
+          arts.push({
+            name: `Round ${r.round} Final HTML Report`,
+            type: 'text/html',
+            icon: FileText,
+            color: 'text-blue-500',
+            bg: 'bg-blue-500/15',
+            downloadUrl: `/api/download?file=round${r.round}/report-round${r.round}-${r.run_id}.html`,
+            date: dateStr,
+          });
+
+          // JSON Meta
+          arts.push({
+            name: `Round ${r.round} Metadata`,
+            type: 'application/json',
+            icon: FileJson,
+            color: 'text-amber-500',
+            bg: 'bg-amber-500/15',
+            downloadUrl: `/api/download?file=round${r.round}/run-meta-${r.run_id}.json`,
+            date: dateStr,
+          });
+        });
+
+        setArtifacts(arts);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
 
   return (
     <>
@@ -20,45 +59,58 @@ export default function ReportsPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-5 md:p-6 bg-background">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {mockArtifacts.map((art, idx) => (
-            <div key={idx} className="bg-card border border-border rounded-xl flex flex-col overflow-hidden shadow-sm transition-all hover:shadow-md">
-              
-              {/* Thumbnail Area */}
-              <div 
-                onClick={() => setPreviewArtifact(art)}
-                className={`h-32 flex items-center justify-center cursor-pointer transition-colors ${art.bg}`}
-              >
-                <art.icon size={42} className={`${art.color} opacity-80`} />
-              </div>
-
-              {/* Info Area */}
-              <div className="p-4 flex-1 flex flex-col gap-4">
-                <div>
-                  <div className="text-sm font-semibold text-card-foreground leading-snug">{art.name}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{art.type} • {art.date}</div>
-                </div>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center p-20 gap-4">
+            <div className="w-8 h-8 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+            <p className="text-muted-foreground text-sm">Loading artifacts...</p>
+          </div>
+        ) : artifacts.length === 0 ? (
+          <div className="p-10 text-center border border-border border-dashed rounded-xl bg-card">
+            <FileText size={48} className="text-muted-foreground opacity-50 mx-auto mb-4" />
+            <h3 className="text-sm font-semibold text-card-foreground">No reports found</h3>
+            <p className="text-xs text-muted-foreground mt-1">Run tests using <code className="bg-muted px-1 py-0.5 rounded text-primary">spritestack run</code> to generate artifacts.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {artifacts.map((art, idx) => (
+              <div key={idx} className="bg-card border border-border rounded-xl flex flex-col overflow-hidden shadow-sm transition-all hover:shadow-md">
                 
-                <div className="flex gap-2 mt-auto">
-                  <button 
-                    onClick={() => setPreviewArtifact(art)} 
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-foreground bg-secondary border border-border hover:bg-muted transition-colors cursor-pointer"
-                  >
-                    Preview
-                  </button>
-                  <a 
-                    href={art.downloadUrl}
-                    download
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-br from-indigo-500 to-purple-500 border border-transparent hover:opacity-90 transition-colors shadow-sm cursor-pointer no-underline"
-                  >
-                    <Download size={13} />
-                    Download
-                  </a>
+                {/* Thumbnail Area */}
+                <div 
+                  onClick={() => setPreviewArtifact(art)}
+                  className={`h-32 flex items-center justify-center cursor-pointer transition-colors ${art.bg}`}
+                >
+                  <art.icon size={42} className={`${art.color} opacity-80`} />
+                </div>
+
+                {/* Info Area */}
+                <div className="p-4 flex-1 flex flex-col gap-4">
+                  <div>
+                    <div className="text-sm font-semibold text-card-foreground leading-snug">{art.name}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{art.type} • {art.date}</div>
+                  </div>
+                  
+                  <div className="flex gap-2 mt-auto">
+                    <button 
+                      onClick={() => setPreviewArtifact(art)} 
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-foreground bg-secondary border border-border hover:bg-muted transition-colors cursor-pointer"
+                    >
+                      Preview
+                    </button>
+                    <a 
+                      href={art.downloadUrl}
+                      download
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-br from-indigo-500 to-purple-500 border border-transparent hover:opacity-90 transition-colors shadow-sm cursor-pointer no-underline"
+                    >
+                      <Download size={13} />
+                      Download
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Preview Modal */}
         {previewArtifact && (
