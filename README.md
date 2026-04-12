@@ -335,7 +335,7 @@ spritestack config                        # View current config
 - [ ] **Scheduled runs** — cron-based continuous monitoring
 - [ ] **Public report sharing** — shareable links for team review
 - [ ] **Multi-project** — manage multiple projects from one dashboard
-- [ ] **npm publish** — `npm install -g @spritestack/cli`
+- [x] **npm publish** — `npm install -g spritestack`
 
 ---
 
