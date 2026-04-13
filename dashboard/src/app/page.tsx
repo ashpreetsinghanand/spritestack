@@ -80,6 +80,22 @@ export default function Dashboard() {
 
   const filtered = tab === 'all' ? runs : runs.filter(r => r.test_type === tab);
 
+
+  const [isTriggering, setIsTriggering] = useState(false);
+
+  const handleRunTests = async () => {
+    setIsTriggering(true);
+    try {
+      await fetch('/api/run', { method: 'POST' });
+      // The run succeeded (or returned soon), refresh runs
+      setTimeout(() => load(), 500);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsTriggering(false);
+    }
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-full bg-background gap-4">
       <div className="w-9 h-9 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
@@ -125,8 +141,13 @@ export default function Dashboard() {
           <button onClick={load} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground bg-muted/50 border border-border hover:bg-muted cursor-pointer transition-colors">
             <RefreshCw size={13} /> Refresh
           </button>
-          <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-br from-indigo-500 to-purple-500 border-none shadow-md cursor-pointer hover:opacity-90">
-            <Play size={13} /> Run Tests
+          <button 
+            onClick={handleRunTests}
+            disabled={isTriggering}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-br from-indigo-500 to-purple-500 border-none shadow-md cursor-pointer hover:opacity-90 disabled:opacity-50"
+          >
+            {isTriggering ? <div className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : <Play size={13} />}
+            {isTriggering ? 'Running...' : 'Run Tests'}
           </button>
         </div>
       </header>
