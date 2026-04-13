@@ -47,18 +47,19 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "better-sqlite3": "^9.4.3",
+    "boxen": "5.1.2",
     "chalk": "4.1.2",
     "commander": "^11.1.0",
-    "fs-extra": "^11.2.0",
-    "js-yaml": "^4.1.0",
-    "ora": "5.4.1",
-    "boxen": "5.1.2",
-    "inquirer": "8.2.6",
-    "better-sqlite3": "^9.4.3",
-    "open": "8.4.2",
-    "table": "^6.8.1",
     "date-fns": "^3.3.1",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "fs-extra": "^11.2.0",
+    "inquirer": "8.2.6",
+    "js-yaml": "^4.1.0",
+    "open": "8.4.2",
+    "ora": "5.4.1",
+    "table": "^6.8.1"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.8",
@@ -66,7 +67,7 @@
     "@types/inquirer": "^8.2.10",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.11.17",
-    "typescript": "^5.3.3",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }
