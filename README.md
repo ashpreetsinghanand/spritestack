@@ -115,7 +115,7 @@ See the improvement! Round 2 will show massively better coverage, pass rates, an
 spritestack dashboard
 ```
 
-Opens at `http://localhost:4242` — shows trend graphs, Round 1 vs Round 2 side-by-side, full run history.
+Opens at `http://localhost:4242` — shows trend graphs, Round 1 vs Round 2 side-by-side, full run history. Use the new **Run Suite** buttons (All, Func, Load, Prompt) directly from the UI to trigger specific MCP contexts dynamically. The Dashboard will even automatically auto-increment your Round numbers for true continuous testing!
 
 ---
 
@@ -147,16 +147,17 @@ Add to `.github/workflows/testops.yml`:
   uses: ashpreetsinghanand/spritestack/.github/actions/spritestack-guard@main
   with:
     spritestack-api-key: ${{ secrets.TESTSPRITE_API_KEY }}
-    round: '1'
     test-type: all
-    fail-on-error: true
+    fail-on-error: 'true'
 ```
 
+**Zero Configuration:** Any enterprise team can adopt SpriteStack immediately by pasting the snippet above. No marketplace install required! Our Action intelligently builds from the local mono-repo source natively or pulls from NPM seamlessly.
+
 **What it does on every PR:**
-1. Runs the full TestSprite MCP test suite (functional + load + bulk-prompt)
-2. Posts a rich comment with pass/fail, metrics table, and full output
-3. Blocks merge if critical failures (configurable)
-4. Uploads `testsprite_tests/` as a GitHub Actions artifact
+1. Securely spins up the TestSprite MCP engine in the GitHub runner natively.
+2. Runs the suite (`all`, `functional`, `load`, etc.) against your code.
+3. Posts a rich Markdown PR Comment with Pass/Fail status, Coverage metrics, and full CLI output.
+4. Blocks the merge if critical bugs are detected.
 
 ---
 
