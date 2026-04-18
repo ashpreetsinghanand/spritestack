@@ -65,7 +65,12 @@ export default function SlackPage() {
     setTestStatus('sending');
     setTestError(null);
     try {
-      const res = await fetch('/api/slack/test', { method: 'POST' });
+      const res = await fetch('/api/slack/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // Pass the current (possibly unsaved) webhook URL so users can test before saving
+        body: JSON.stringify({ webhookUrl: config.slackWebhookUrl }),
+      });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setTestStatus('ok');

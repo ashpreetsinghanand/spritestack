@@ -18,8 +18,15 @@ function readConfig() {
 }
 
 export async function POST(req: NextRequest) {
+  // Allow passing a webhookUrl in the request body to test before saving
+  let overrideUrl: string | undefined;
+  try {
+    const body = await req.json();
+    if (body?.webhookUrl) overrideUrl = body.webhookUrl;
+  } catch (_) {}
+
   const cfg = readConfig();
-  const webhookUrl = cfg.slackWebhookUrl;
+  const webhookUrl = overrideUrl ?? cfg.slackWebhookUrl;
 
   if (!webhookUrl) {
     return NextResponse.json({ success: false, error: 'No webhook URL configured.' }, { status: 400 });

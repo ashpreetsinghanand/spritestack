@@ -33,12 +33,14 @@ export async function GET(req: NextRequest) {
   else if (ext === '.mp4') contentType = 'video/mp4';
 
   const fileName = path.basename(requestedPath);
+  const inline = req.nextUrl.searchParams.get('inline') === 'true';
+  const disposition = inline ? `inline; filename="${fileName}"` : `attachment; filename="${fileName}"`;
 
   return new NextResponse(fileBuffer, {
     status: 200,
     headers: {
       'Content-Type': contentType,
-      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Disposition': disposition,
     },
   });
 }
