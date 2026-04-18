@@ -27,7 +27,7 @@ inputs:
   node-version:
     description: Node.js version to use
     required: false
-    default: '20'
+    default: '22'
 
 outputs:
   pass-rate:
@@ -63,6 +63,8 @@ runs:
           npm run build
           npm link
           cd ../..
+          # Rebuild native modules for the current Node version
+          npm rebuild better-sqlite3 --update-binary 2>/dev/null || true
         else
           echo "Fetching from NPM..."
           npm install -g spritestack@latest

@@ -115,7 +115,7 @@ See the improvement! Round 2 will show massively better coverage, pass rates, an
 spritestack dashboard
 ```
 
-Opens at `http://localhost:4242` — shows trend graphs, Round 1 vs Round 2 side-by-side, full run history. Use the new **Run Suite** buttons (All, Func, Load, Prompt) directly from the UI to trigger specific MCP contexts dynamically. The Dashboard will even automatically auto-increment your Round numbers for true continuous testing!
+Opens at `http://localhost:3000` — shows trend graphs, Round 1 vs Round 2 side-by-side, full run history. Use the new **Run Suite** buttons (All, Func, Load, Prompt) directly from the UI to trigger specific MCP contexts dynamically. The Dashboard will even automatically auto-increment your Round numbers for true continuous testing!
 
 ---
 

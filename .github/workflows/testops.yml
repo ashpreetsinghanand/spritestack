@@ -39,6 +39,7 @@ jobs:
           testsprite-email: ${{ secrets.TESTSPRITE_EMAIL }}
           round: ${{ github.event.inputs.round || '1' }}
           test-type: all
+          node-version: '22'
           fail-on-error: ${{ github.event_name == 'push' }}
 
       - name: Upload Test Results
