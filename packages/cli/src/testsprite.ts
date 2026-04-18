@@ -68,37 +68,50 @@ export async function runTestSpriteReal(
     await client.connect(transport);
     info(chalk.green('TestSprite MCP connected.'));
 
+    // Discover available tools so we use the correct names
+    const { tools } = await client.listTools();
+    const toolNames = new Set(tools.map((t: any) => t.name));
+    info(chalk.dim(`Available tools: ${[...toolNames].join(', ')}`));
+
+    const call = async (preferred: string, fallbacks: string[], args: Record<string, any>) => {
+      const name = [preferred, ...fallbacks].find(n => toolNames.has(n));
+      if (!name) {
+        warn(`None of [${[preferred, ...fallbacks].join(', ')}] found — skipping step`);
+        return;
+      }
+      await client.callTool({ name, arguments: args });
+    };
+
     // ── Step 1: Bootstrap ────────────────────────────────────────────────────
     sectionHeader('Step 1/4 — Bootstrapping TestSprite');
-    await client.callTool({
-      name: 'testsprite_bootstrap_tests',
-      arguments: {
-        localPort,
-        type: projectType,
-        projectPath,
-        testScope: 'codebase',
-      },
-    });
+    await call(
+      'testsprite_bootstrap_tests',
+      ['bootstrap_tests', 'testsprite_init', 'init_tests'],
+      { localPort, type: projectType, projectPath, testScope: 'codebase' }
+    );
 
     // ── Step 2: Code Summary ─────────────────────────────────────────────────
     sectionHeader('Step 2/4 — Analyzing project structure');
-    await client.callTool({
-      name: 'testsprite_generate_code_summary',
-      arguments: { projectRootPath: projectPath },
-    });
+    await call(
+      'testsprite_generate_code_summary',
+      ['generate_code_summary', 'code_summary', 'testsprite_analyze'],
+      { projectRootPath: projectPath }
+    );
 
     // ── Step 3: Test Plan ────────────────────────────────────────────────────
     sectionHeader('Step 3/4 — Generating test plan');
     if (projectType === 'frontend') {
-      await client.callTool({
-        name: 'testsprite_generate_frontend_test_plan',
-        arguments: { projectPath, needLogin: false },
-      });
+      await call(
+        'testsprite_generate_frontend_test_plan',
+        ['generate_frontend_test_plan', 'testsprite_generate_test_plan', 'generate_test_plan'],
+        { projectPath, needLogin: false }
+      );
     } else {
-      await client.callTool({
-        name: 'testsprite_generate_backend_test_plan',
-        arguments: { projectPath },
-      });
+      await call(
+        'testsprite_generate_backend_test_plan',
+        ['generate_backend_test_plan', 'testsprite_generate_test_plan', 'generate_test_plan'],
+        { projectPath }
+      );
     }
 
     // ── Step 4: Execute ──────────────────────────────────────────────────────
@@ -107,15 +120,16 @@ export async function runTestSpriteReal(
       ? `Focus on these user journeys: ${config.tests.functional.journeys.join(', ')}.`
       : '';
 
-    await client.callTool({
-      name: 'testsprite_generate_code_and_execute',
-      arguments: {
+    await call(
+      'testsprite_generate_code_and_execute',
+      ['generate_code_and_execute', 'testsprite_execute', 'execute_tests', 'run_tests'],
+      {
         projectName,
         projectPath,
         testIds: [],
         additionalInstruction: `Round ${round} test run. Test type: ${testType}. ${journeyInstructions}`.trim(),
-      },
-    });
+      }
+    );
 
     await client.close();
   } catch (err: any) {
