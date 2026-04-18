@@ -1,0 +1,59 @@
+{
+  "runId": "068dd28c61ad",
+  "generatedAt": "2026-04-13T14:35:59.949Z",
+  "generatedBy": "SpriteStack + TestSprite MCP",
+  "projectName": "My Project",
+  "testType": "load",
+  "totalCases": 7,
+  "cases": [
+    {
+      "id": "tc_1",
+      "name": "[Functional] login happy path",
+      "type": "functional",
+      "status": "passed",
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_2",
+      "name": "[Functional] login error state",
+      "type": "functional",
+      "status": "passed",
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_3",
+      "name": "[Functional] checkout happy path",
+      "type": "functional",
+      "status": "passed",
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_4",
+      "name": "[Functional] checkout error state",
+      "type": "functional",
+      "status": "passed",
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_5",
+      "name": "[Functional] main-flow happy path",
+      "type": "functional",
+      "status": "passed",
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_6",
+      "name": "[Functional] main-flow error state",
+      "type": "functional",
+      "status": "passed",
+      "generatedBy": "TestSprite MCP"
+    },
+    {
+      "id": "tc_7",
+      "name": "[Load] 50 concurrent users",
+      "type": "load",
+      "status": "passed",
+      "generatedBy": "TestSprite MCP"
+    }
+  ]
+}

@@ -83,10 +83,10 @@ export default function Dashboard() {
 
   const [isTriggering, setIsTriggering] = useState(false);
 
-  const handleRunTests = async () => {
+  const handleRunTests = async (type: string = 'all') => {
     setIsTriggering(true);
     try {
-      await fetch('/api/run', { method: 'POST' });
+      await fetch('/api/run', { method: 'POST', body: JSON.stringify({ type }) });
       // The run succeeded (or returned soon), refresh runs
       setTimeout(() => load(), 500);
     } catch (e) {
@@ -141,14 +141,19 @@ export default function Dashboard() {
           <button onClick={load} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground bg-muted/50 border border-border hover:bg-muted cursor-pointer transition-colors">
             <RefreshCw size={13} /> Refresh
           </button>
-          <button 
-            onClick={handleRunTests}
-            disabled={isTriggering}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-br from-indigo-500 to-purple-500 border-none shadow-md cursor-pointer hover:opacity-90 disabled:opacity-50"
-          >
-            {isTriggering ? <div className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : <Play size={13} />}
-            {isTriggering ? 'Running...' : 'Run Tests'}
-          </button>
+          <div className="flex bg-card border border-border rounded-lg overflow-hidden h-[30px] shadow-sm">
+            <button 
+              onClick={() => handleRunTests('all')}
+              disabled={isTriggering}
+              className="flex items-center gap-1.5 px-3.5 text-xs font-semibold text-white bg-gradient-to-br from-indigo-500 to-purple-500 hover:opacity-90 disabled:opacity-50"
+            >
+              {isTriggering ? <div className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : <Play size={13} />}
+              {isTriggering ? 'Running...' : 'Run All'}
+            </button>
+            <button onClick={() => handleRunTests('functional')} disabled={isTriggering} className="px-2.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border-l border-border disabled:opacity-50">Func</button>
+            <button onClick={() => handleRunTests('load')} disabled={isTriggering} className="px-2.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border-l border-border disabled:opacity-50">Load</button>
+            <button onClick={() => handleRunTests('bulk-prompt')} disabled={isTriggering} className="px-2.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors border-l border-border disabled:opacity-50">Prompt</button>
+          </div>
         </div>
       </header>
 

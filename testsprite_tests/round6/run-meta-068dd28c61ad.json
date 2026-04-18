@@ -1,0 +1,31 @@
+{
+  "runId": "068dd28c61ad",
+  "projectName": "My Project",
+  "round": 6,
+  "testType": "load",
+  "status": "failed",
+  "totalTests": 26,
+  "passedTests": 22,
+  "failedTests": 4,
+  "coveragePercent": 88.14662582816426,
+  "durationMs": 86146.43826188523,
+  "summaryJson": "{\"totalTests\":26,\"passedTests\":22,\"failedTests\":4,\"coveragePercent\":88.14662582816426,\"durationMs\":86146.43826188523,\"issues\":[{\"severity\":\"medium\",\"title\":\"Edge case: empty string in required fields not rejected\",\"description\":\"Zod validation passes for fields with whitespace-only strings in the name field.\",\"fixSuggestion\":\"Use `.trim().min(1)` instead of `.min(1)` in your Zod schema for string fields.\"},{\"severity\":\"low\",\"title\":\"Inconsistent error response format on 500 errors\",\"description\":\"Unhandled exceptions return raw stack traces in development, different format from handled errors.\",\"fixSuggestion\":\"Add a global error handler that normalizes all error responses to `{ error: { code, message } }`.\"}]}",
+  "createdAt": "2026-04-13T14:35:59.948Z",
+  "issues": [
+    {
+      "severity": "medium",
+      "title": "Edge case: empty string in required fields not rejected",
+      "description": "Zod validation passes for fields with whitespace-only strings in the name field.",
+      "fixSuggestion": "Use `.trim().min(1)` instead of `.min(1)` in your Zod schema for string fields."
+    },
+    {
+      "severity": "low",
+      "title": "Inconsistent error response format on 500 errors",
+      "description": "Unhandled exceptions return raw stack traces in development, different format from handled errors.",
+      "fixSuggestion": "Add a global error handler that normalizes all error responses to `{ error: { code, message } }`."
+    }
+  ],
+  "mcpProvider": "TestSprite",
+  "generatedBy": "SpriteStack CLI v0.1.1",
+  "realRun": true
+}

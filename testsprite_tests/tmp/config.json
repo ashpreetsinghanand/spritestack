@@ -1,0 +1,13 @@
+{
+  "status": "init",
+  "executionArgs": {
+    "projectName": "My Project",
+    "projectPath": "/Users/ashpreetsinghanand/Desktop/spritestack",
+    "testIds": [],
+    "additionalInstruction": "Round 6 test run. Test type: load. Focus on these user journeys: login, checkout, main-flow.",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-Gq_wVGVytEpXW6Nz8yDc-n5IVxmsckO46853e_PCLVGdoU4BHMvI2lkZaQKBTqsrcseshG4nuklID7NND7e2Do0DfP7vkrecfewscYAzQPfccA7gcrOG4bip4Fs8bov4qvI"
+    }
+  }
+}

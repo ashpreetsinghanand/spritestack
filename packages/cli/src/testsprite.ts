@@ -190,8 +190,12 @@ function parseTestSpriteOutput(cwd: string, durationMs: number): TestSpriteResul
     }
   }
 
+  if (totalTests === 0) {
+    throw new Error('TestSprite MCP returned 0 test results. The AI agent might not have found any actionable code to test or the output format was unexpected.');
+  }
+
   return {
-    totalTests: Math.max(totalTests, 1),
+    totalTests,
     passedTests,
     failedTests,
     coveragePercent,

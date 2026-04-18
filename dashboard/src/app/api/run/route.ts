@@ -59,12 +59,32 @@ async function sendSlackNotification(webhookUrl: string, run: any, success: bool
   });
 }
 
-export async function POST() {
+export async function POST(req: Request) {
   const cwd = process.env.SPRITESTACK_CWD || process.cwd();
   console.log(`Triggering run in ${cwd}...`);
 
   try {
-    const { stdout } = await execAsync('npx spritestack run', { cwd, timeout: 300_000 });
+    let testType = 'all';
+    try {
+      const body = await req.json();
+      if (body.type) testType = body.type;
+    } catch (_) {}
+
+    let nextRound = 1;
+    try {
+      const Database = require('better-sqlite3');
+      const dbPath = path.join(cwd, '.spritestack', 'runs.sqlite');
+      if (fs.existsSync(dbPath)) {
+        const db = new Database(dbPath, { readonly: true });
+        const latestInfo = db.prepare('SELECT round FROM test_runs ORDER BY id DESC LIMIT 1').get();
+        if (latestInfo) nextRound = latestInfo.round + 1;
+        db.close();
+      }
+    } catch (_) {}
+
+    const cmd = `npx spritestack run ${testType} --round ${nextRound}`;
+    console.log(`Executing: ${cmd}`);
+    const { stdout } = await execAsync(cmd, { cwd, timeout: 300_000 });
 
     // Read latest run from DB and send Slack notification
     const cfg = readConfig(cwd);

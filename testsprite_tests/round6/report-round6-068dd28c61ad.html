@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpriteStack Report — My Project Round 6</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0b0f;
+      --surface: #111318;
+      --surface2: #1a1d25;
+      --border: #1f2433;
+      --accent: #4F6EF7;
+      --accent2: #7C3AED;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --text-dim: #64748b;
+      --text-muted: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .header {
+      background: linear-gradient(135deg, #0f1117 0%, #1a1d25 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .logo-text { font-size: 20px; font-weight: 700; color: white; }
+    .logo-sub { font-size: 13px; color: var(--text-dim); }
+    .header-meta { text-align: right; }
+    .run-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); }
+    .run-date { font-size: 14px; color: var(--text); margin-top: 4px; }
+
+    .hero {
+      background: linear-gradient(135deg, #0d1117 0%, #161b27 50%, #1a1625 100%);
+      padding: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .hero-sub { color: var(--text-dim); font-size: 15px; margin-bottom: 32px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+    .stat-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .status-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 14px;
+      background: #ef444422;
+      color: #ef4444;
+      border: 1px solid #ef444444;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    .content { max-width: 1200px; margin: 0 auto; padding: 48px; }
+
+    .section { margin-bottom: 48px; }
+    .section h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comparison-section {
+      background: linear-gradient(135deg, var(--surface) 0%, #111827 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 32px;
+    }
+    .comparison-section h2 { margin-bottom: 20px; }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .cmp-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .cmp-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px; }
+    .cmp-before { font-size: 20px; color: var(--text-dim); font-weight: 600; }
+    .cmp-arrow { font-size: 20px; color: var(--text-muted); margin: 4px 0; }
+    .cmp-after { font-size: 24px; font-weight: 700; }
+    .cmp-after.positive { color: var(--green); }
+    .cmp-after.negative { color: var(--red); }
+    .cmp-delta { font-size: 12px; font-weight: 600; margin-top: 4px; padding: 2px 8px; border-radius: 100px; display: inline-block; }
+    .cmp-delta.positive { background: #22c55e22; color: var(--green); }
+    .cmp-delta.negative { background: #ef444422; color: var(--red); }
+
+    .issues-grid { display: flex; flex-direction: column; gap: 12px; }
+    .issue-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+    }
+    .issue-card.severity-critical { border-left-color: var(--red); }
+    .issue-card.severity-high { border-left-color: #f97316; }
+    .issue-card.severity-medium { border-left-color: var(--yellow); }
+    .issue-card.severity-low { border-left-color: var(--accent); }
+    .issue-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .severity-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .severity-badge.critical { background: #ef444422; color: var(--red); }
+    .severity-badge.high { background: #f9731622; color: #f97316; }
+    .severity-badge.medium { background: #f59e0b22; color: var(--yellow); }
+    .severity-badge.low { background: var(--accent)22; color: var(--accent); }
+    .issue-title { font-weight: 600; font-size: 14px; }
+    .issue-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; }
+    .fix-suggestion {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid #22c55e22;
+    }
+    .fix-label { font-size: 12px; font-weight: 600; color: var(--green); display: block; margin-bottom: 4px; }
+    .fix-suggestion p { font-size: 13px; color: var(--text-dim); }
+    .no-issues { color: var(--green); font-weight: 600; padding: 20px; text-align: center; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .meta-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .meta-key { font-size: 11px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+    .meta-val { font-size: 14px; font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 13px;
+      margin-top: 48px;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🧪</div>
+      <div>
+        <div class="logo-text">SpriteStack</div>
+        <div class="logo-sub">TestOps Ecosystem for TestSprite MCP</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="run-id">RUN: 068dd28c61ad</div>
+      <div class="run-date">4/13/2026, 8:05:59 PM</div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="hero-title">My Project — Round 6 Report</div>
+      <div class="hero-sub">load test suite · 1m 26s</div>
+
+      <div style="margin-bottom:24px;">
+        <div class="status-banner">
+          <div class="status-dot"></div>
+          FAILED
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--text)">26</div>
+          <div class="stat-label">Total Tests</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--green)">22</div>
+          <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--red)">4</div>
+          <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--accent)">84.6%</div>
+          <div class="stat-label">Pass Rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--accent2)">88.1%</div>
+          <div class="stat-label">Coverage</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--text-dim)">1m 26s</div>
+          <div class="stat-label">Duration</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    
+
+    <div class="section">
+      <h2>🐛 Issues Found (2)</h2>
+      <div class="issues-grid">
+        
+    <div class="issue-card severity-medium">
+      <div class="issue-header">
+        <span class="severity-badge medium">MEDIUM</span>
+        <span class="issue-title">Edge case: empty string in required fields not rejected</span>
+      </div>
+      <p class="issue-desc">Zod validation passes for fields with whitespace-only strings in the name field.</p>
+      
+        <div class="fix-suggestion">
+          <span class="fix-label">💡 Fix Suggestion</span>
+          <p>Use `.trim().min(1)` instead of `.min(1)` in your Zod schema for string fields.</p>
+        </div>
+      
+    </div>
+  
+    <div class="issue-card severity-low">
+      <div class="issue-header">
+        <span class="severity-badge low">LOW</span>
+        <span class="issue-title">Inconsistent error response format on 500 errors</span>
+      </div>
+      <p class="issue-desc">Unhandled exceptions return raw stack traces in development, different format from handled errors.</p>
+      
+        <div class="fix-suggestion">
+          <span class="fix-label">💡 Fix Suggestion</span>
+          <p>Add a global error handler that normalizes all error responses to `{ error: { code, message } }`.</p>
+        </div>
+      
+    </div>
+  
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>ℹ Test Run Metadata</h2>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="meta-key">Project Type</div>
+          <div class="meta-val">auto</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-key">Base URL</div>
+          <div class="meta-val">http://localhost:3000</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-key">Test Type</div>
+          <div class="meta-val">load</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-key">Severity Breakdown</div>
+          <div class="meta-val" style="font-size:12px;">
+            C:0 H:0 M:1 L:1
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Generated by <a href="https://github.com/ashpreetsinghanand/spritestack" target="_blank">SpriteStack</a>
+    · Powered by <a href="https://testsprite.com" target="_blank">TestSprite MCP</a>
+    · 4/13/2026, 8:05:59 PM
+  </div>
+</body>
+</html>

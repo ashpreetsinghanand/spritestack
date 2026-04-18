@@ -1,0 +1,18 @@
+{
+  "runId": "f6acdbb72fa6",
+  "projectName": "My Project",
+  "round": 1,
+  "testType": "all",
+  "status": "passed",
+  "totalTests": 1,
+  "passedTests": 0,
+  "failedTests": 0,
+  "coveragePercent": 0,
+  "durationMs": 17676,
+  "summaryJson": "{\"totalTests\":1,\"passedTests\":0,\"failedTests\":0,\"coveragePercent\":0,\"durationMs\":17676,\"issues\":[]}",
+  "createdAt": "2026-04-13T14:20:46.814Z",
+  "issues": [],
+  "mcpProvider": "TestSprite",
+  "generatedBy": "SpriteStack CLI v0.1.1",
+  "realRun": true
+}

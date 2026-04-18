@@ -81,6 +81,12 @@ tests:
     count: 500
 ```
 
+Add your API Key by creating a `.env` file in the root directory:
+```bash
+TESTSPRITE_API_KEY=your_key_here
+```
+*(Note: If no API key is provided, SpriteStack gracefully falls back to a simulated demo sandbox so you can still preview the UI!)*
+
 ### 3. Run Round 1
 
 ```bash
@@ -122,6 +128,7 @@ The SpriteStack dashboard is your **single pane of glass** for all TestSprite MC
 - 🔄 Round 1 vs Round 2 comparison (bar charts + cards)
 - 📋 Full run history with filtering by test type
 - 🎬 Links to HTML reports and replay videos
+- 🔔 Configure **Slack Webhooks** directly in Settings for automated CI alerts
 - 🟢 MCP connection status
 
 ```bash
@@ -263,16 +270,15 @@ spritestack/
 
 ## 🧪 TestSprite MCP Usage (Hackathon Submission)
 
-> **This project was built with and tested heavily using TestSprite MCP.**
+> **SpriteStack drives real TestSprite tests.** The CLI natively integrates the `@modelcontextprotocol/sdk` to spawn an `npx @testsprite/testsprite-mcp` child process over `stdio`. It runs tools like `testsprite_bootstrap_tests`, `testsprite_generate_backend_test_plan`, and `testsprite_generate_code_and_execute` completely autonomously without using an expansive LLM.
 
 ### Setup
 
 ```bash
-# Install TestSprite MCP server
-npx @testsprite/testsprite-mcp@latest
-
-# Add API key when prompted
-# TESTSPRITE_API_KEY=your_key_here
+# Provide key
+echo "TESTSPRITE_API_KEY=your_key_here" > .env
+# Run real tests
+spritestack run --round 1
 ```
 
 ### Round 1 — What We Found

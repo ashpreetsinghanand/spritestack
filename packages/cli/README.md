@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/spritestack.svg)](https://npmjs.org/package/spritestack)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**SpriteStack** is the complete TestOps orchestration layer for **TestSprite MCP**. It provides a single CLI (`spritestack`) to run functional, load, and bulk-prompt testing autonomously, generating rich HTML reports and tracking test runs over time.
+**SpriteStack** is the complete TestOps orchestration layer for **TestSprite MCP**. It provides a single CLI (`spritestack`) that natively integrates the official `@modelcontextprotocol/sdk` to spawn the TestSprite MCP agent via standard IO (`stdio`) and run functional, load, and bulk-prompt testing autonomously, generating rich HTML reports and tracking test runs over time.
 
 ## Installation
 
