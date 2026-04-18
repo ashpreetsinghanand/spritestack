@@ -53,7 +53,20 @@ runs:
 
     - name: Install SpriteStack CLI
       shell: bash
-      run: npm install -g @spritestack/cli@latest || npx @spritestack/cli@latest --version
+      run: |
+        # If running inside the spritestack monorepo itself (for your own CI testing), build from source.
+        # Otherwise, install the public package from NPM for end-users.
+        if [ -f "packages/cli/package.json" ]; then
+          echo "Detected local mono-repo. Building CLI from source..."
+          cd packages/cli
+          npm install
+          npm run build
+          npm link
+          cd ../..
+        else
+          echo "Fetching from NPM..."
+          npm install -g spritestack@latest
+        fi
 
     - name: Initialize SpriteStack (if not configured)
       shell: bash
