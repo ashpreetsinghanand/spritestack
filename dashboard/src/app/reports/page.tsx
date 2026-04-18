@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { FileText, FileJson, XCircle, Download, ExternalLink } from 'lucide-react';
+import { FileText, FileJson, XCircle, Download, ExternalLink, Copy, Check } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 export default function ReportsPage() {
@@ -10,6 +10,7 @@ export default function ReportsPage() {
   const [previewArtifact, setPreviewArtifact] = useState<any>(null);
   const [jsonContent, setJsonContent] = useState<string | null>(null);
   const [jsonLoading, setJsonLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -73,9 +74,18 @@ export default function ReportsPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  const copyJson = useCallback(() => {
+    if (!jsonContent) return;
+    navigator.clipboard.writeText(jsonContent).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [jsonContent]);
+
   const openPreview = useCallback(async (art: any) => {
     setPreviewArtifact(art);
     setJsonContent(null);
+    setCopied(false);
     if (art.ext === 'json') {
       setJsonLoading(true);
       try {
@@ -159,7 +169,7 @@ export default function ReportsPage() {
         {/* Preview Modal */}
         {previewArtifact && (
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-card border border-border rounded-xl w-full max-w-5xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col" style={{ maxHeight: '90vh' }}>
+            <div className="bg-card border border-border rounded-xl w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col" style={{ maxHeight: '96vh', width: '96vw' }}>
 
               {/* Modal Header */}
               <div className="flex justify-between items-center px-5 py-4 border-b border-border bg-muted/30 shrink-0">
@@ -189,26 +199,47 @@ export default function ReportsPage() {
               </div>
 
               {/* Preview Content */}
-              <div className="flex-1 overflow-hidden min-h-0" style={{ height: '65vh' }}>
+              <div className="flex-1 min-h-0" style={{ height: '80vh', display: 'flex', flexDirection: 'column' }}>
                 {previewArtifact.ext === 'html' ? (
                   <iframe
                     src={previewArtifact.previewUrl}
-                    className="w-full h-full border-none bg-white"
+                    className="w-full border-none bg-white"
+                    style={{ flex: 1, height: '100%' }}
                     title={previewArtifact.name}
                     sandbox="allow-scripts allow-same-origin"
                   />
                 ) : previewArtifact.ext === 'json' ? (
-                  <div className="h-full overflow-auto bg-[#1e1e2e] text-[13px]">
-                    {jsonLoading ? (
-                      <div className="flex items-center justify-center h-full gap-3 text-muted-foreground">
-                        <div className="w-5 h-5 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-                        <span>Loading JSON…</span>
-                      </div>
-                    ) : (
-                      <pre className="p-5 m-0 text-[#cdd6f4] font-mono leading-relaxed whitespace-pre-wrap break-all">
-                        {jsonContent ?? ''}
-                      </pre>
-                    )}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#1e1e2e', overflow: 'hidden' }}>
+                    {/* JSON toolbar */}
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 shrink-0">
+                      <span className="text-xs text-[#6c7086] font-mono">JSON</span>
+                      <button
+                        onClick={copyJson}
+                        disabled={!jsonContent || jsonLoading}
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors disabled:opacity-40 cursor-pointer border"
+                        style={{
+                          background: copied ? 'rgba(166,227,161,0.15)' : 'rgba(255,255,255,0.07)',
+                          borderColor: copied ? 'rgba(166,227,161,0.4)' : 'rgba(255,255,255,0.12)',
+                          color: copied ? '#a6e3a1' : '#cdd6f4',
+                        }}
+                      >
+                        {copied ? <Check size={12} /> : <Copy size={12} />}
+                        {copied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                    {/* Scrollable JSON content */}
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                      {jsonLoading ? (
+                        <div className="flex items-center justify-center h-full gap-3 text-[#6c7086]">
+                          <div className="w-5 h-5 rounded-full border-2 border-[#6c7086]/30 border-t-[#cdd6f4] animate-spin" />
+                          <span className="text-sm">Loading JSON…</span>
+                        </div>
+                      ) : (
+                        <pre style={{ margin: 0, padding: '20px', color: '#cdd6f4', fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.6', whiteSpace: 'pre', display: 'block' }}>
+                          {jsonContent ?? ''}
+                        </pre>
+                      )}
+                    </div>
                   </div>
                 ) : null}
               </div>
